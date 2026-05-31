@@ -813,12 +813,25 @@ function CoreFeatures() {
 /* ============================================================
    4) الأسعار
    ============================================================ */
+/* ============================================================
+   4) الأسعار (نظام عملات متعدد)
+   ============================================================ */
+
+// أسعار الباقة الاحترافية + رموز العملة لكل سوق
+const CURRENCIES = [
+  { code: "SAR", flag: "🇸🇦", name: "السعودية", symbol: "ر.س", pro: "149", prefix: false },
+  { code: "EGP", flag: "🇪🇬", name: "مصر", symbol: "ج.م", pro: "1,950", prefix: false },
+  { code: "AED", flag: "🇦🇪", name: "الإمارات", symbol: "د.إ", pro: "145", prefix: false },
+  { code: "USD", flag: "🌐", name: "دولي", symbol: "$", pro: "39", prefix: true },
+] as const;
+
+type CurrencyCode = (typeof CURRENCIES)[number]["code"];
+
 const PLANS = [
   {
+    tier: "free" as const,
     name: "التجربة المجانية",
     sub: "ديمو محدود",
-    price: "0",
-    unit: "مجانًا",
     cta: "ابدأ الفحص المجاني",
     popular: false,
     features: [
@@ -830,10 +843,9 @@ const PLANS = [
     missing: ["تقرير تفصيلي كامل", "تحليل المنافسين", "دعم أولوية"],
   },
   {
+    tier: "pro" as const,
     name: "الباقة الاحترافية للحيتان",
     sub: "Professional Whale Tier",
-    price: "499",
-    unit: "ريال / شهريًا",
     cta: "اشترك الآن",
     popular: true,
     features: [
@@ -849,9 +861,21 @@ const PLANS = [
 ];
 
 function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
+  const [currency, setCurrency] = useState<CurrencyCode>("SAR");
+  const active = CURRENCIES.find((c) => c.code === currency) ?? CURRENCIES[0];
+
   function handlePayment(plan: string) {
     // 🔌 نقطة ربط الدفع لاحقًا (Tap / Paymob / Stripe ...)
-    alert(`سيتم توجيهك لإتمام الاشتراك في: ${plan}\n(نقطة ربط بوابة الدفع — قيد الإعداد)`);
+    alert(
+      `سيتم توجيهك لإتمام الاشتراك في: ${plan}\nالعملة: ${active.code}\n(نقطة ربط بوابة الدفع — قيد الإعداد)`
+    );
+  }
+
+  // يبني عرض السعر مع وضع الرمز قبل أو بعد الرقم حسب العملة
+  function priceParts(tier: "free" | "pro") {
+    const amount = tier === "free" ? "0" : active.pro;
+    const isFree = tier === "free";
+    return { amount, symbol: active.symbol, prefix: active.prefix, unit: isFree ? "مجانًا" : "/ شهريًا" };
   }
 
   return (
@@ -868,64 +892,95 @@ function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-16 grid max-w-4xl items-start gap-7 md:grid-cols-2">
-        {PLANS.map((plan) => (
-          <div
-            key={plan.name}
-            className={`relative flex flex-col rounded-[28px] p-7 transition-all duration-500 sm:p-8 ${
-              plan.popular
-                ? "border-2 border-transparent bg-ink text-cream shadow-card [background:linear-gradient(#0E1116,#0E1116)_padding-box,linear-gradient(135deg,#34D399,#E8A33D)_border-box] md:-translate-y-3 md:hover:-translate-y-4"
-                : "border border-ink/10 bg-white/80 text-ink shadow-soft backdrop-blur-sm hover:-translate-y-1"
-            }`}
-          >
-            {plan.popular && (
-              <span className="absolute -top-3.5 right-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-emerald to-amber-accent px-4 py-1.5 font-display text-xs font-bold text-white shadow-glow">
-                <StarIcon /> الأكثر اختيارًا
-              </span>
-            )}
-
-            <div className="flex items-baseline justify-between">
-              <div>
-                <h3 className={`font-display text-xl font-extrabold ${plan.popular ? "text-cream" : "text-ink"}`}>{plan.name}</h3>
-                <p className={`mt-1 text-xs ${plan.popular ? "text-cream/60" : "text-ink-muted"}`} dir="ltr">{plan.sub}</p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-end gap-2">
-              <span className="font-display text-5xl font-black tabular-nums">{plan.price}</span>
-              <span className={`mb-1.5 text-sm ${plan.popular ? "text-cream/70" : "text-ink-muted"}`}>{plan.unit}</span>
-            </div>
-
+      {/* مبدّل العملات */}
+      <div className="mx-auto mt-10 flex w-max max-w-full flex-wrap items-center justify-center gap-1.5 rounded-full border border-ink/10 bg-white/60 p-1.5 shadow-soft backdrop-blur-md">
+        {CURRENCIES.map((c) => {
+          const isActive = currency === c.code;
+          return (
             <button
-              onClick={() => (plan.popular ? handlePayment(plan.name) : onFreeTier())}
-              className={`mt-7 w-full rounded-full py-3.5 font-display text-base font-bold transition ${
-                plan.popular
-                  ? "cta-pulse bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
-                  : "border border-ink/15 bg-cream text-ink hover:border-ink/30"
+              key={c.code}
+              onClick={() => setCurrency(c.code)}
+              aria-pressed={isActive}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-sm font-bold transition-all duration-300 ${
+                isActive
+                  ? "scale-105 bg-emerald text-white shadow-[0_8px_20px_-8px_rgba(15,157,107,0.85)]"
+                  : "text-ink-soft hover:scale-105 hover:bg-white/70 hover:text-ink"
               }`}
             >
-              {plan.cta}
+              <span className="text-base leading-none">{c.flag}</span>
+              {c.code}
             </button>
-
-            <ul className="mt-8 space-y-3.5">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-3 text-sm">
-                  <span className={`mt-0.5 shrink-0 ${plan.popular ? "text-emerald-ring" : "text-emerald"}`}>
-                    <Check light={plan.popular} />
-                  </span>
-                  <span className={plan.popular ? "text-cream/90" : "text-ink-soft"}>{f}</span>
-                </li>
-              ))}
-              {plan.missing.map((m) => (
-                <li key={m} className="flex items-start gap-3 text-sm opacity-50">
-                  <span className="mt-0.5 shrink-0 text-ink-muted"><XIcon /></span>
-                  <span className="text-ink-muted line-through">{m}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      <div className="mx-auto mt-12 grid max-w-4xl items-start gap-7 md:grid-cols-2">
+        {PLANS.map((plan) => {
+          const p = priceParts(plan.tier);
+          return (
+            <div
+              key={plan.name}
+              className={`relative flex flex-col rounded-[28px] p-7 transition-all duration-500 sm:p-8 ${
+                plan.popular
+                  ? "border-2 border-transparent bg-ink text-cream shadow-card [background:linear-gradient(#0E1116,#0E1116)_padding-box,linear-gradient(135deg,#34D399,#E8A33D)_border-box] md:-translate-y-3 md:hover:-translate-y-4"
+                  : "border border-ink/10 bg-white/80 text-ink shadow-soft backdrop-blur-sm hover:-translate-y-1"
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-3.5 right-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-emerald to-amber-accent px-4 py-1.5 font-display text-xs font-bold text-white shadow-glow">
+                  <StarIcon /> الأكثر اختيارًا
+                </span>
+              )}
+
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <h3 className={`font-display text-xl font-extrabold ${plan.popular ? "text-cream" : "text-ink"}`}>{plan.name}</h3>
+                  <p className={`mt-1 text-xs ${plan.popular ? "text-cream/60" : "text-ink-muted"}`} dir="ltr">{plan.sub}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-end gap-2">
+                <span className="font-display text-5xl font-black tabular-nums" dir="ltr">
+                  {p.prefix ? `${p.symbol}${p.amount}` : `${p.amount} ${p.symbol}`}
+                </span>
+                <span className={`mb-1.5 text-sm ${plan.popular ? "text-cream/70" : "text-ink-muted"}`}>{p.unit}</span>
+              </div>
+
+              <button
+                onClick={() => (plan.popular ? handlePayment(plan.name) : onFreeTier())}
+                className={`mt-7 w-full rounded-full py-3.5 font-display text-base font-bold transition ${
+                  plan.popular
+                    ? "cta-pulse bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
+                    : "border border-ink/15 bg-cream text-ink hover:border-ink/30"
+                }`}
+              >
+                {plan.cta}
+              </button>
+
+              <ul className="mt-8 space-y-3.5">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm">
+                    <span className={`mt-0.5 shrink-0 ${plan.popular ? "text-emerald-ring" : "text-emerald"}`}>
+                      <Check light={plan.popular} />
+                    </span>
+                    <span className={plan.popular ? "text-cream/90" : "text-ink-soft"}>{f}</span>
+                  </li>
+                ))}
+                {plan.missing.map((m) => (
+                  <li key={m} className="flex items-start gap-3 text-sm opacity-50">
+                    <span className="mt-0.5 shrink-0 text-ink-muted"><XIcon /></span>
+                    <span className="text-ink-muted line-through">{m}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-8 text-center text-sm text-ink-muted">
+        الأسعار معروضة بعملة {active.name} ({active.code}). تُحتسب الفاتورة النهائية وفق بوابة الدفع.
+      </p>
     </section>
   );
 }
