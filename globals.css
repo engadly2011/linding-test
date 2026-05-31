@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* خلفية كريمية بلمسة إضاءة ناعمة + شبكة نقطية خفيفة */
+  background-color: #faf7f2;
+  background-image:
+    radial-gradient(60rem 40rem at 85% -10%, rgba(15, 157, 107, 0.1), transparent 60%),
+    radial-gradient(50rem 40rem at -10% 10%, rgba(232, 163, 61, 0.08), transparent 55%),
+    radial-gradient(rgba(14, 17, 22, 0.04) 1px, transparent 1px);
+  background-size: auto, auto, 22px 22px;
+  background-attachment: fixed;
+}
+
+/* تحسين عرض الأرقام داخل المؤشر */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== هياكل التحميل (Skeleton + Shimmer) ===== */
+/* قاعدة رمادية دافئة تناسب الخلفية الكريمية، يمرّ فوقها وميض ضوئي ناعم */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(14, 17, 22, 0.07);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 1.7s ease-in-out infinite;
+}
+/* نسخة أبطأ وأدفأ للقسم الذهبي */
+.skeleton-gold {
+  background-color: rgba(232, 163, 61, 0.18);
+}
+.skeleton-gold::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 248, 230, 0.75) 50%,
+    transparent 100%
+  );
+  animation-duration: 2.6s;
+}
+@keyframes shimmer-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ===== شريط البراندات المتحرك (Marquee) ===== */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+
+/* احترام تفضيل تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
