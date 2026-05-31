@@ -72,37 +72,61 @@ export default function Home() {
     }
   }
 
+  function scrollToId(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault();
+    scrollToId(id);
+  }
+
   function scrollToAudit() {
-    document.getElementById("audit-hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToId("audit-hero");
   }
 
   return (
-    <main className="relative overflow-hidden">
-      {/* ===== شريط التنقل ===== */}
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-        <a href="#" className="flex items-center gap-2.5">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-emerald-ring shadow-soft">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-          </span>
-          <span className="font-display text-lg font-extrabold tracking-tight text-ink">
-            Auditor<span className="text-emerald">.ai</span>
-          </span>
-        </a>
+    <>
+      {/* ===== شريط التنقل (Sticky + Glassmorphism) ===== */}
+      <header className="sticky top-0 z-50 border-b border-ink/5 bg-cream/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <a href="#audit-hero" onClick={(e) => handleNavClick(e, "audit-hero")} className="flex items-center gap-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-emerald-ring shadow-soft">
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </span>
+            <span className="font-display text-lg font-extrabold tracking-tight text-ink">
+              Auditor<span className="text-emerald">.ai</span>
+            </span>
+          </a>
 
-        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
-          <a href="#how" className="transition hover:text-ink">كيف يعمل</a>
-          <a href="#features" className="transition hover:text-ink">ماذا نفحص</a>
-          <a href="#pricing" className="transition hover:text-ink">الأسعار</a>
-          <a href="#faq" className="transition hover:text-ink">الأسئلة الشائعة</a>
-        </nav>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
+            <a href="#how" onClick={(e) => handleNavClick(e, "how")} className="transition hover:text-ink">كيف يعمل</a>
+            <a href="#features" onClick={(e) => handleNavClick(e, "features")} className="transition hover:text-ink">ماذا نفحص</a>
+            <a href="#pricing" onClick={(e) => handleNavClick(e, "pricing")} className="transition hover:text-ink">الأسعار</a>
+            <a href="#faq" onClick={(e) => handleNavClick(e, "faq")} className="transition hover:text-ink">الأسئلة الشائعة</a>
+          </nav>
 
-        <a href="#pricing" className="rounded-full border border-ink/15 bg-white/60 px-5 py-2 text-sm font-semibold text-ink backdrop-blur transition hover:border-ink/30 hover:shadow-soft">
-          ابدأ الآن
-        </a>
+          <a href="#pricing" onClick={(e) => handleNavClick(e, "pricing")} className="rounded-full border border-ink/15 bg-white/60 px-5 py-2 text-sm font-semibold text-ink backdrop-blur transition hover:border-ink/30 hover:shadow-soft">
+            ابدأ الآن
+          </a>
+        </div>
       </header>
+
+      <main className="relative overflow-x-clip">
+        {/* أنيميشن نبض ظل أزرار التحويل — مستقل بذاته */}
+        <style>{`
+          @keyframes cta-pulse {
+            0%, 100% { box-shadow: 0 10px 24px -8px rgba(15,157,107,0.65); }
+            50%      { box-shadow: 0 16px 36px -6px rgba(15,157,107,0.95); }
+          }
+          .cta-pulse:hover { animation: cta-pulse 1.8s ease-in-out infinite; }
+          @media (prefers-reduced-motion: reduce) {
+            .cta-pulse:hover { animation: none; }
+          }
+        `}</style>
 
       {/* ===== القسم الرئيسي ===== */}
       <section id="audit-hero" className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pt-16">
@@ -155,7 +179,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-emerald px-6 py-3.5 font-display text-base font-bold text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] transition hover:bg-emerald-dark hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.8)] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/25 disabled:cursor-not-allowed disabled:opacity-70"
+                className="group cta-pulse inline-flex items-center justify-center gap-2 rounded-full bg-emerald px-6 py-3.5 font-display text-base font-bold text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] transition hover:bg-emerald-dark hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.8)] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/25 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {status === "loading" ? (
                   <>
@@ -227,7 +251,8 @@ export default function Home() {
       <PricingTable onFreeTier={scrollToAudit} />
       <FAQSection />
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }
 
@@ -591,13 +616,38 @@ function CopyButton({ text, label, big = false }: { text: string; label: string;
 const BRANDS = ["Taager", "Ninja Sellers", "Salla", "Zid", "Shopify", "YouCan"];
 
 function BrandsTicker() {
+  // أنيميشن مستقل بذاته داخل المكوّن — لا يعتمد على globals.css
+  const maskStyle: React.CSSProperties = {
+    WebkitMaskImage:
+      "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)",
+    maskImage:
+      "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)",
+  };
+
   return (
     <section className="border-y border-ink/5 bg-white/40 py-10 backdrop-blur-sm">
+      <style>{`
+        @keyframes brand-marquee {
+          0%   { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+        .brand-marquee-track {
+          animation: brand-marquee 32s linear infinite;
+        }
+        .brand-marquee-track:hover {
+          animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .brand-marquee-track { animation: none; }
+        }
+      `}</style>
+
       <p className="mb-7 text-center text-sm font-medium tracking-wide text-ink-muted">
         نفحص ونُحسّن صفحات على أبرز منصات التجارة في الشرق الأوسط
       </p>
-      <div className="marquee-mask relative overflow-hidden">
-        <div className="flex w-max animate-marquee items-center gap-16 pr-16">
+
+      <div className="relative overflow-hidden" style={maskStyle}>
+        <div className="brand-marquee-track flex w-max items-center gap-16 pr-16">
           {[...BRANDS, ...BRANDS].map((b, i) => (
             <span
               key={i}
@@ -638,7 +688,7 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="how" className="mx-auto max-w-7xl px-6 py-24">
+    <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-emerald/25 bg-emerald-light px-4 py-1.5 text-sm font-semibold text-emerald-dark">
           ثلاث خطوات
@@ -710,7 +760,7 @@ const FEATURES = [
 
 function CoreFeatures() {
   return (
-    <section id="features" className="relative bg-sand/40 py-24">
+    <section id="features" className="relative scroll-mt-24 bg-sand/40 py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
@@ -721,7 +771,7 @@ function CoreFeatures() {
           </h2>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        <div className="mt-16 grid gap-7 lg:grid-cols-3">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             const ring =
@@ -737,7 +787,7 @@ function CoreFeatures() {
                 ? "bg-[#FCF2E0] text-amber-accent"
                 : "bg-ink/5 text-ink";
             return (
-              <div key={f.en} className={`group flex flex-col rounded-[28px] border border-ink/10 bg-white/80 p-8 shadow-soft backdrop-blur-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-card ${ring}`}>
+              <div key={f.en} className={`group flex flex-col rounded-[28px] border border-ink/10 bg-white/80 p-7 shadow-soft backdrop-blur-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-card sm:p-8 ${ring}`}>
                 <span className={`grid h-14 w-14 place-items-center rounded-2xl ${iconBg} transition-transform duration-500 group-hover:scale-110`}>
                   <Icon />
                 </span>
@@ -763,12 +813,25 @@ function CoreFeatures() {
 /* ============================================================
    4) الأسعار
    ============================================================ */
+/* ============================================================
+   4) الأسعار (نظام عملات متعدد)
+   ============================================================ */
+
+// أسعار الباقة الاحترافية + رموز العملة لكل سوق
+const CURRENCIES = [
+  { code: "SAR", flag: "🇸🇦", name: "السعودية", symbol: "ر.س", pro: "149", prefix: false },
+  { code: "EGP", flag: "🇪🇬", name: "مصر", symbol: "ج.م", pro: "1,950", prefix: false },
+  { code: "AED", flag: "🇦🇪", name: "الإمارات", symbol: "د.إ", pro: "145", prefix: false },
+  { code: "USD", flag: "🌐", name: "دولي", symbol: "$", pro: "39", prefix: true },
+] as const;
+
+type CurrencyCode = (typeof CURRENCIES)[number]["code"];
+
 const PLANS = [
   {
+    tier: "free" as const,
     name: "التجربة المجانية",
     sub: "ديمو محدود",
-    price: "0",
-    unit: "مجانًا",
     cta: "ابدأ الفحص المجاني",
     popular: false,
     features: [
@@ -780,10 +843,9 @@ const PLANS = [
     missing: ["تقرير تفصيلي كامل", "تحليل المنافسين", "دعم أولوية"],
   },
   {
+    tier: "pro" as const,
     name: "الباقة الاحترافية للحيتان",
     sub: "Professional Whale Tier",
-    price: "499",
-    unit: "ريال / شهريًا",
     cta: "اشترك الآن",
     popular: true,
     features: [
@@ -799,13 +861,25 @@ const PLANS = [
 ];
 
 function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
+  const [currency, setCurrency] = useState<CurrencyCode>("SAR");
+  const active = CURRENCIES.find((c) => c.code === currency) ?? CURRENCIES[0];
+
   function handlePayment(plan: string) {
     // 🔌 نقطة ربط الدفع لاحقًا (Tap / Paymob / Stripe ...)
-    alert(`سيتم توجيهك لإتمام الاشتراك في: ${plan}\n(نقطة ربط بوابة الدفع — قيد الإعداد)`);
+    alert(
+      `سيتم توجيهك لإتمام الاشتراك في: ${plan}\nالعملة: ${active.code}\n(نقطة ربط بوابة الدفع — قيد الإعداد)`
+    );
+  }
+
+  // يبني عرض السعر مع وضع الرمز قبل أو بعد الرقم حسب العملة
+  function priceParts(tier: "free" | "pro") {
+    const amount = tier === "free" ? "0" : active.pro;
+    const isFree = tier === "free";
+    return { amount, symbol: active.symbol, prefix: active.prefix, unit: isFree ? "مجانًا" : "/ شهريًا" };
   }
 
   return (
-    <section id="pricing" className="mx-auto max-w-7xl px-6 py-24">
+    <section id="pricing" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-amber-accent/40 bg-[#FCF2E0] px-4 py-1.5 text-sm font-semibold text-amber-accent">
           الأسعار
@@ -818,64 +892,95 @@ function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-16 grid max-w-4xl items-start gap-6 md:grid-cols-2">
-        {PLANS.map((plan) => (
-          <div
-            key={plan.name}
-            className={`relative flex flex-col rounded-[28px] p-8 transition-all duration-500 ${
-              plan.popular
-                ? "border-2 border-transparent bg-ink text-cream shadow-card [background:linear-gradient(#0E1116,#0E1116)_padding-box,linear-gradient(135deg,#34D399,#E8A33D)_border-box] md:-translate-y-3 md:hover:-translate-y-4"
-                : "border border-ink/10 bg-white/80 text-ink shadow-soft backdrop-blur-sm hover:-translate-y-1"
-            }`}
-          >
-            {plan.popular && (
-              <span className="absolute -top-3.5 right-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-emerald to-amber-accent px-4 py-1.5 font-display text-xs font-bold text-white shadow-glow">
-                <StarIcon /> الأكثر اختيارًا
-              </span>
-            )}
-
-            <div className="flex items-baseline justify-between">
-              <div>
-                <h3 className={`font-display text-xl font-extrabold ${plan.popular ? "text-cream" : "text-ink"}`}>{plan.name}</h3>
-                <p className={`mt-1 text-xs ${plan.popular ? "text-cream/60" : "text-ink-muted"}`} dir="ltr">{plan.sub}</p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-end gap-2">
-              <span className="font-display text-5xl font-black tabular-nums">{plan.price}</span>
-              <span className={`mb-1.5 text-sm ${plan.popular ? "text-cream/70" : "text-ink-muted"}`}>{plan.unit}</span>
-            </div>
-
+      {/* مبدّل العملات */}
+      <div className="mx-auto mt-10 flex w-max max-w-full flex-wrap items-center justify-center gap-1.5 rounded-full border border-ink/10 bg-white/60 p-1.5 shadow-soft backdrop-blur-md">
+        {CURRENCIES.map((c) => {
+          const isActive = currency === c.code;
+          return (
             <button
-              onClick={() => (plan.popular ? handlePayment(plan.name) : onFreeTier())}
-              className={`mt-7 w-full rounded-full py-3.5 font-display text-base font-bold transition ${
-                plan.popular
-                  ? "bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
-                  : "border border-ink/15 bg-cream text-ink hover:border-ink/30"
+              key={c.code}
+              onClick={() => setCurrency(c.code)}
+              aria-pressed={isActive}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-sm font-bold transition-all duration-300 ${
+                isActive
+                  ? "scale-105 bg-emerald text-white shadow-[0_8px_20px_-8px_rgba(15,157,107,0.85)]"
+                  : "text-ink-soft hover:scale-105 hover:bg-white/70 hover:text-ink"
               }`}
             >
-              {plan.cta}
+              <span className="text-base leading-none">{c.flag}</span>
+              {c.code}
             </button>
-
-            <ul className="mt-8 space-y-3.5">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-3 text-sm">
-                  <span className={`mt-0.5 shrink-0 ${plan.popular ? "text-emerald-ring" : "text-emerald"}`}>
-                    <Check light={plan.popular} />
-                  </span>
-                  <span className={plan.popular ? "text-cream/90" : "text-ink-soft"}>{f}</span>
-                </li>
-              ))}
-              {plan.missing.map((m) => (
-                <li key={m} className="flex items-start gap-3 text-sm opacity-50">
-                  <span className="mt-0.5 shrink-0 text-ink-muted"><XIcon /></span>
-                  <span className="text-ink-muted line-through">{m}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      <div className="mx-auto mt-12 grid max-w-4xl items-start gap-7 md:grid-cols-2">
+        {PLANS.map((plan) => {
+          const p = priceParts(plan.tier);
+          return (
+            <div
+              key={plan.name}
+              className={`relative flex flex-col rounded-[28px] p-7 transition-all duration-500 sm:p-8 ${
+                plan.popular
+                  ? "border-2 border-transparent bg-ink text-cream shadow-card [background:linear-gradient(#0E1116,#0E1116)_padding-box,linear-gradient(135deg,#34D399,#E8A33D)_border-box] md:-translate-y-3 md:hover:-translate-y-4"
+                  : "border border-ink/10 bg-white/80 text-ink shadow-soft backdrop-blur-sm hover:-translate-y-1"
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-3.5 right-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-emerald to-amber-accent px-4 py-1.5 font-display text-xs font-bold text-white shadow-glow">
+                  <StarIcon /> الأكثر اختيارًا
+                </span>
+              )}
+
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <h3 className={`font-display text-xl font-extrabold ${plan.popular ? "text-cream" : "text-ink"}`}>{plan.name}</h3>
+                  <p className={`mt-1 text-xs ${plan.popular ? "text-cream/60" : "text-ink-muted"}`} dir="ltr">{plan.sub}</p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-end gap-2">
+                <span className="font-display text-5xl font-black tabular-nums" dir="ltr">
+                  {p.prefix ? `${p.symbol}${p.amount}` : `${p.amount} ${p.symbol}`}
+                </span>
+                <span className={`mb-1.5 text-sm ${plan.popular ? "text-cream/70" : "text-ink-muted"}`}>{p.unit}</span>
+              </div>
+
+              <button
+                onClick={() => (plan.popular ? handlePayment(plan.name) : onFreeTier())}
+                className={`mt-7 w-full rounded-full py-3.5 font-display text-base font-bold transition ${
+                  plan.popular
+                    ? "cta-pulse bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
+                    : "border border-ink/15 bg-cream text-ink hover:border-ink/30"
+                }`}
+              >
+                {plan.cta}
+              </button>
+
+              <ul className="mt-8 space-y-3.5">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm">
+                    <span className={`mt-0.5 shrink-0 ${plan.popular ? "text-emerald-ring" : "text-emerald"}`}>
+                      <Check light={plan.popular} />
+                    </span>
+                    <span className={plan.popular ? "text-cream/90" : "text-ink-soft"}>{f}</span>
+                  </li>
+                ))}
+                {plan.missing.map((m) => (
+                  <li key={m} className="flex items-start gap-3 text-sm opacity-50">
+                    <span className="mt-0.5 shrink-0 text-ink-muted"><XIcon /></span>
+                    <span className="text-ink-muted line-through">{m}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-8 text-center text-sm text-ink-muted">
+        الأسعار معروضة بعملة {active.name} ({active.code}). تُحتسب الفاتورة النهائية وفق بوابة الدفع.
+      </p>
     </section>
   );
 }
@@ -910,7 +1015,7 @@ function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative bg-sand/40 py-24">
+    <section id="faq" className="relative scroll-mt-24 bg-sand/40 py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
