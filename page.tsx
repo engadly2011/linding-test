@@ -72,37 +72,61 @@ export default function Home() {
     }
   }
 
+  function scrollToId(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault();
+    scrollToId(id);
+  }
+
   function scrollToAudit() {
-    document.getElementById("audit-hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToId("audit-hero");
   }
 
   return (
-    <main className="relative overflow-hidden">
-      {/* ===== شريط التنقل ===== */}
-      <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-        <a href="#" className="flex items-center gap-2.5">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-emerald-ring shadow-soft">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-          </span>
-          <span className="font-display text-lg font-extrabold tracking-tight text-ink">
-            Auditor<span className="text-emerald">.ai</span>
-          </span>
-        </a>
+    <>
+      {/* ===== شريط التنقل (Sticky + Glassmorphism) ===== */}
+      <header className="sticky top-0 z-50 border-b border-ink/5 bg-cream/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <a href="#audit-hero" onClick={(e) => handleNavClick(e, "audit-hero")} className="flex items-center gap-2.5">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-ink text-emerald-ring shadow-soft">
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </span>
+            <span className="font-display text-lg font-extrabold tracking-tight text-ink">
+              Auditor<span className="text-emerald">.ai</span>
+            </span>
+          </a>
 
-        <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
-          <a href="#how" className="transition hover:text-ink">كيف يعمل</a>
-          <a href="#features" className="transition hover:text-ink">ماذا نفحص</a>
-          <a href="#pricing" className="transition hover:text-ink">الأسعار</a>
-          <a href="#faq" className="transition hover:text-ink">الأسئلة الشائعة</a>
-        </nav>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
+            <a href="#how" onClick={(e) => handleNavClick(e, "how")} className="transition hover:text-ink">كيف يعمل</a>
+            <a href="#features" onClick={(e) => handleNavClick(e, "features")} className="transition hover:text-ink">ماذا نفحص</a>
+            <a href="#pricing" onClick={(e) => handleNavClick(e, "pricing")} className="transition hover:text-ink">الأسعار</a>
+            <a href="#faq" onClick={(e) => handleNavClick(e, "faq")} className="transition hover:text-ink">الأسئلة الشائعة</a>
+          </nav>
 
-        <a href="#pricing" className="rounded-full border border-ink/15 bg-white/60 px-5 py-2 text-sm font-semibold text-ink backdrop-blur transition hover:border-ink/30 hover:shadow-soft">
-          ابدأ الآن
-        </a>
+          <a href="#pricing" onClick={(e) => handleNavClick(e, "pricing")} className="rounded-full border border-ink/15 bg-white/60 px-5 py-2 text-sm font-semibold text-ink backdrop-blur transition hover:border-ink/30 hover:shadow-soft">
+            ابدأ الآن
+          </a>
+        </div>
       </header>
+
+      <main className="relative overflow-x-clip">
+        {/* أنيميشن نبض ظل أزرار التحويل — مستقل بذاته */}
+        <style>{`
+          @keyframes cta-pulse {
+            0%, 100% { box-shadow: 0 10px 24px -8px rgba(15,157,107,0.65); }
+            50%      { box-shadow: 0 16px 36px -6px rgba(15,157,107,0.95); }
+          }
+          .cta-pulse:hover { animation: cta-pulse 1.8s ease-in-out infinite; }
+          @media (prefers-reduced-motion: reduce) {
+            .cta-pulse:hover { animation: none; }
+          }
+        `}</style>
 
       {/* ===== القسم الرئيسي ===== */}
       <section id="audit-hero" className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pt-16">
@@ -155,7 +179,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-emerald px-6 py-3.5 font-display text-base font-bold text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] transition hover:bg-emerald-dark hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.8)] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/25 disabled:cursor-not-allowed disabled:opacity-70"
+                className="group cta-pulse inline-flex items-center justify-center gap-2 rounded-full bg-emerald px-6 py-3.5 font-display text-base font-bold text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] transition hover:bg-emerald-dark hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.8)] focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald/25 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {status === "loading" ? (
                   <>
@@ -227,7 +251,8 @@ export default function Home() {
       <PricingTable onFreeTier={scrollToAudit} />
       <FAQSection />
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }
 
@@ -663,7 +688,7 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="how" className="mx-auto max-w-7xl scroll-mt-20 px-6 py-24">
+    <section id="how" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-emerald/25 bg-emerald-light px-4 py-1.5 text-sm font-semibold text-emerald-dark">
           ثلاث خطوات
@@ -735,7 +760,7 @@ const FEATURES = [
 
 function CoreFeatures() {
   return (
-    <section id="features" className="relative scroll-mt-20 bg-sand/40 py-24">
+    <section id="features" className="relative scroll-mt-24 bg-sand/40 py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
@@ -830,7 +855,7 @@ function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
   }
 
   return (
-    <section id="pricing" className="mx-auto max-w-7xl scroll-mt-20 px-6 py-24">
+    <section id="pricing" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-amber-accent/40 bg-[#FCF2E0] px-4 py-1.5 text-sm font-semibold text-amber-accent">
           الأسعار
@@ -875,7 +900,7 @@ function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
               onClick={() => (plan.popular ? handlePayment(plan.name) : onFreeTier())}
               className={`mt-7 w-full rounded-full py-3.5 font-display text-base font-bold transition ${
                 plan.popular
-                  ? "bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
+                  ? "cta-pulse bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
                   : "border border-ink/15 bg-cream text-ink hover:border-ink/30"
               }`}
             >
@@ -935,7 +960,7 @@ function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative scroll-mt-20 bg-sand/40 py-24">
+    <section id="faq" className="relative scroll-mt-24 bg-sand/40 py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
