@@ -591,13 +591,38 @@ function CopyButton({ text, label, big = false }: { text: string; label: string;
 const BRANDS = ["Taager", "Ninja Sellers", "Salla", "Zid", "Shopify", "YouCan"];
 
 function BrandsTicker() {
+  // أنيميشن مستقل بذاته داخل المكوّن — لا يعتمد على globals.css
+  const maskStyle: React.CSSProperties = {
+    WebkitMaskImage:
+      "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)",
+    maskImage:
+      "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)",
+  };
+
   return (
     <section className="border-y border-ink/5 bg-white/40 py-10 backdrop-blur-sm">
+      <style>{`
+        @keyframes brand-marquee {
+          0%   { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+        .brand-marquee-track {
+          animation: brand-marquee 32s linear infinite;
+        }
+        .brand-marquee-track:hover {
+          animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .brand-marquee-track { animation: none; }
+        }
+      `}</style>
+
       <p className="mb-7 text-center text-sm font-medium tracking-wide text-ink-muted">
         نفحص ونُحسّن صفحات على أبرز منصات التجارة في الشرق الأوسط
       </p>
-      <div className="marquee-mask relative overflow-hidden">
-        <div className="flex w-max animate-marquee items-center gap-16 pr-16">
+
+      <div className="relative overflow-hidden" style={maskStyle}>
+        <div className="brand-marquee-track flex w-max items-center gap-16 pr-16">
           {[...BRANDS, ...BRANDS].map((b, i) => (
             <span
               key={i}
@@ -638,7 +663,7 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <section id="how" className="mx-auto max-w-7xl px-6 py-24">
+    <section id="how" className="mx-auto max-w-7xl scroll-mt-20 px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-emerald/25 bg-emerald-light px-4 py-1.5 text-sm font-semibold text-emerald-dark">
           ثلاث خطوات
@@ -710,7 +735,7 @@ const FEATURES = [
 
 function CoreFeatures() {
   return (
-    <section id="features" className="relative bg-sand/40 py-24">
+    <section id="features" className="relative scroll-mt-20 bg-sand/40 py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
@@ -721,7 +746,7 @@ function CoreFeatures() {
           </h2>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        <div className="mt-16 grid gap-7 lg:grid-cols-3">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             const ring =
@@ -737,7 +762,7 @@ function CoreFeatures() {
                 ? "bg-[#FCF2E0] text-amber-accent"
                 : "bg-ink/5 text-ink";
             return (
-              <div key={f.en} className={`group flex flex-col rounded-[28px] border border-ink/10 bg-white/80 p-8 shadow-soft backdrop-blur-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-card ${ring}`}>
+              <div key={f.en} className={`group flex flex-col rounded-[28px] border border-ink/10 bg-white/80 p-7 shadow-soft backdrop-blur-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-card sm:p-8 ${ring}`}>
                 <span className={`grid h-14 w-14 place-items-center rounded-2xl ${iconBg} transition-transform duration-500 group-hover:scale-110`}>
                   <Icon />
                 </span>
@@ -805,7 +830,7 @@ function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
   }
 
   return (
-    <section id="pricing" className="mx-auto max-w-7xl px-6 py-24">
+    <section id="pricing" className="mx-auto max-w-7xl scroll-mt-20 px-6 py-24">
       <div className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-amber-accent/40 bg-[#FCF2E0] px-4 py-1.5 text-sm font-semibold text-amber-accent">
           الأسعار
@@ -818,11 +843,11 @@ function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-16 grid max-w-4xl items-start gap-6 md:grid-cols-2">
+      <div className="mx-auto mt-16 grid max-w-4xl items-start gap-7 md:grid-cols-2">
         {PLANS.map((plan) => (
           <div
             key={plan.name}
-            className={`relative flex flex-col rounded-[28px] p-8 transition-all duration-500 ${
+            className={`relative flex flex-col rounded-[28px] p-7 transition-all duration-500 sm:p-8 ${
               plan.popular
                 ? "border-2 border-transparent bg-ink text-cream shadow-card [background:linear-gradient(#0E1116,#0E1116)_padding-box,linear-gradient(135deg,#34D399,#E8A33D)_border-box] md:-translate-y-3 md:hover:-translate-y-4"
                 : "border border-ink/10 bg-white/80 text-ink shadow-soft backdrop-blur-sm hover:-translate-y-1"
@@ -910,7 +935,7 @@ function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="relative bg-sand/40 py-24">
+    <section id="faq" className="relative scroll-mt-20 bg-sand/40 py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">

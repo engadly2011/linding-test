@@ -26,8 +26,24 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-display)", "system-ui", "sans-serif"],
-        body: ["var(--font-body)", "system-ui", "sans-serif"],
+        display: [
+          "var(--font-display)",
+          "Tajawal",
+          "'Segoe UI'",
+          "Tahoma",
+          "'Geeza Pro'",
+          "system-ui",
+          "sans-serif",
+        ],
+        body: [
+          "var(--font-body)",
+          "'IBM Plex Sans Arabic'",
+          "'Segoe UI'",
+          "Tahoma",
+          "'Geeza Pro'",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       boxShadow: {
         card: "0 24px 60px -20px rgba(14, 17, 22, 0.18), 0 8px 20px -12px rgba(14, 17, 22, 0.12)",
