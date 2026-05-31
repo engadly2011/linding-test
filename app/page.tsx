@@ -19,6 +19,9 @@ export type AuditResult = {
   recommended_changes: Change[];
 };
 
+/* ============================================================
+   المكوّن الرئيسي
+   ============================================================ */
 export default function Home() {
   const [url, setUrl] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -26,7 +29,6 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
   const reportRef = useRef<HTMLDivElement>(null);
 
-  // مرّر الشاشة للتقرير/الهيكل بسلاسة فور بدء الفحص أو ظهور النتيجة
   useEffect(() => {
     if ((status === "loading" || result) && reportRef.current) {
       reportRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -70,6 +72,10 @@ export default function Home() {
     }
   }
 
+  function scrollToAudit() {
+    document.getElementById("audit-hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <main className="relative overflow-hidden">
       {/* ===== شريط التنقل ===== */}
@@ -88,18 +94,18 @@ export default function Home() {
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
           <a href="#how" className="transition hover:text-ink">كيف يعمل</a>
-          <a href="#" className="transition hover:text-ink">الأسعار</a>
-          <a href="#" className="transition hover:text-ink">أمثلة</a>
+          <a href="#features" className="transition hover:text-ink">ماذا نفحص</a>
+          <a href="#pricing" className="transition hover:text-ink">الأسعار</a>
+          <a href="#faq" className="transition hover:text-ink">الأسئلة الشائعة</a>
         </nav>
 
-        <a href="#" className="rounded-full border border-ink/15 bg-white/60 px-5 py-2 text-sm font-semibold text-ink backdrop-blur transition hover:border-ink/30 hover:shadow-soft">
-          تسجيل الدخول
+        <a href="#pricing" className="rounded-full border border-ink/15 bg-white/60 px-5 py-2 text-sm font-semibold text-ink backdrop-blur transition hover:border-ink/30 hover:shadow-soft">
+          ابدأ الآن
         </a>
       </header>
 
       {/* ===== القسم الرئيسي ===== */}
-      <section className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pt-16">
-        {/* النص + النموذج */}
+      <section id="audit-hero" className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-24 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pt-16">
         <div className="max-w-xl">
           <span className="inline-flex animate-fade-up items-center gap-2 rounded-full border border-emerald/25 bg-emerald-light px-4 py-1.5 text-sm font-semibold text-emerald-dark" style={{ animationDelay: "0ms" }}>
             <span className="relative flex h-2 w-2">
@@ -125,7 +131,6 @@ export default function Home() {
             للتطبيق لزيادة مبيعاتك.
           </p>
 
-          {/* نموذج الفحص */}
           <form onSubmit={handleSubmit} className="mt-8 animate-fade-up" style={{ animationDelay: "250ms" }}>
             <div className="flex flex-col gap-3 rounded-2xl border border-ink/10 bg-white/70 p-2 shadow-soft backdrop-blur sm:flex-row sm:items-center sm:rounded-full">
               <div className="flex flex-1 items-center gap-3 px-4">
@@ -185,7 +190,6 @@ export default function Home() {
             )}
           </form>
 
-          {/* دليل اجتماعي */}
           <div className="mt-10 flex animate-fade-up items-center gap-4" style={{ animationDelay: "330ms" }}>
             <div className="flex -space-x-2 space-x-reverse">
               {["#0F9D6B", "#E8A33D", "#3A4150", "#0B7C54"].map((c, i) => (
@@ -200,13 +204,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* بطاقة التقرير — تعرض الداتا الحقيقية لو موجودة */}
         <div className="animate-fade-up lg:justify-self-end" style={{ animationDelay: "200ms" }}>
           <AuditCard result={result} loading={status === "loading"} />
         </div>
       </section>
 
-      {/* ===== أسفل الهيرو: هيكل التحميل أثناء الفحص، أو التقرير بعد نجاحه ===== */}
+      {/* ===== التقرير / الهيكل ===== */}
       {status === "loading" ? (
         <div ref={reportRef}>
           <ReportSkeleton />
@@ -216,18 +219,22 @@ export default function Home() {
           <DetailedReport result={result} />
         </div>
       ) : null}
+
+      {/* ===== الأقسام التسويقية ===== */}
+      <BrandsTicker />
+      <HowItWorks />
+      <CoreFeatures />
+      <PricingTable onFreeTier={scrollToAudit} />
+      <FAQSection />
+      <Footer />
     </main>
   );
 }
 
-/* ============ بطاقة تقرير الفحص ============ */
-function AuditCard({
-  result,
-  loading,
-}: {
-  result: AuditResult | null;
-  loading: boolean;
-}) {
+/* ============================================================
+   بطاقة تقرير الفحص
+   ============================================================ */
+function AuditCard({ result, loading }: { result: AuditResult | null; loading: boolean }) {
   const demo = {
     title: "your-store.com",
     score: 68,
@@ -299,10 +306,7 @@ function AuditCard({
           ))}
         </div>
 
-        <a
-          href={live ? "#detailed-report" : "#"}
-          className="mt-6 block w-full rounded-xl bg-ink py-3 text-center font-display text-sm font-bold text-cream transition hover:bg-ink/90"
-        >
+        <a href={live ? "#detailed-report" : "#pricing"} className="mt-6 block w-full rounded-xl bg-ink py-3 text-center font-display text-sm font-bold text-cream transition hover:bg-ink/90">
           عرض التقرير الكامل والتوصيات
         </a>
       </div>
@@ -310,9 +314,9 @@ function AuditCard({
   );
 }
 
-/* ============ المؤشر الدائري المتحرك ============ */
+/* ============ المؤشر الدائري ============ */
 const RADIUS = 54;
-const CIRC = 2 * Math.PI * RADIUS; // ≈ 339.29
+const CIRC = 2 * Math.PI * RADIUS;
 
 function ScoreRing({ score }: { score: number }) {
   const target = clamp(score);
@@ -330,18 +334,7 @@ function ScoreRing({ score }: { score: number }) {
     <div className="relative grid h-28 w-28 shrink-0 place-items-center">
       <svg viewBox="0 0 120 120" className="h-28 w-28 -rotate-90">
         <circle cx="60" cy="60" r={RADIUS} fill="none" stroke="#0E11160F" strokeWidth="12" />
-        <circle
-          cx="60"
-          cy="60"
-          r={RADIUS}
-          fill="none"
-          stroke="url(#ring-grad)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeDasharray={CIRC}
-          strokeDashoffset={offset}
-          style={{ transition: "stroke-dashoffset 1.4s cubic-bezier(0.22,1,0.36,1)" }}
-        />
+        <circle cx="60" cy="60" r={RADIUS} fill="none" stroke="url(#ring-grad)" strokeWidth="12" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 1.4s cubic-bezier(0.22,1,0.36,1)" }} />
         <defs>
           <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={c.from} />
@@ -377,20 +370,16 @@ function Metric({ label, value, tone }: { label: string; value: number; tone: To
         <span className="font-display font-bold tabular-nums text-ink">{value}</span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-sand">
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${w}%`, background: color, transition: "width 1s cubic-bezier(0.22,1,0.36,1)" }}
-        />
+        <div className="h-full rounded-full" style={{ width: `${w}%`, background: color, transition: "width 1s cubic-bezier(0.22,1,0.36,1)" }} />
       </div>
     </div>
   );
 }
 
-/* ============ هيكل التحميل (Skeleton + Shimmer) ============ */
+/* ============ هيكل التحميل ============ */
 function ReportSkeleton() {
   return (
     <section className="mx-auto max-w-5xl px-6 pb-28" aria-busy="true" aria-label="جارٍ تحضير التقرير">
-      {/* رأس التقرير */}
       <div className="animate-fade-up rounded-[28px] border border-ink/10 bg-white/70 p-7 shadow-card backdrop-blur-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-3">
@@ -398,7 +387,6 @@ function ReportSkeleton() {
             <div className="skeleton h-8 w-72 rounded-lg" />
             <div className="skeleton h-4 w-40 rounded" />
           </div>
-          {/* صندوق النتيجة الداكن مع وميض داخلي */}
           <div className="flex items-center gap-4 rounded-2xl bg-ink px-6 py-5">
             <div className="space-y-2 text-center">
               <div className="skeleton h-9 w-12 rounded-md" style={{ backgroundColor: "rgba(250,247,242,0.18)" }} />
@@ -413,14 +401,12 @@ function ReportSkeleton() {
         </div>
       </div>
 
-      {/* تبويبات وهمية */}
       <div className="mt-6 flex flex-wrap gap-2.5">
         {[40, 46, 36].map((w, i) => (
           <div key={i} className="skeleton rounded-full" style={{ height: "44px", width: `${w * 4}px` }} />
         ))}
       </div>
 
-      {/* بطاقات مشاكل وهمية */}
       <div className="mt-5 space-y-3">
         {[0, 1, 2, 3].map((i) => (
           <div key={i} className="flex items-start gap-4 rounded-2xl border border-ink/10 bg-white/80 p-5 shadow-soft backdrop-blur-sm">
@@ -434,7 +420,6 @@ function ReportSkeleton() {
         ))}
       </div>
 
-      {/* القسم الذهبي وهو يتنفّس ببطء */}
       <div className="mt-10 overflow-hidden rounded-[28px] border border-amber-accent/40 bg-gradient-to-bl from-[#FCF4E0] to-[#F8EAC8] shadow-card">
         <div className="flex items-center justify-between gap-3 border-b border-amber-accent/30 bg-amber-accent/10 px-7 py-5">
           <div className="flex items-center gap-3">
@@ -461,7 +446,6 @@ function ReportSkeleton() {
         </div>
       </div>
 
-      {/* سطر طمأنة للمستخدم */}
       <p className="mt-6 flex items-center justify-center gap-2 text-sm text-ink-muted">
         <svg className="h-4 w-4 animate-spin text-emerald" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
@@ -486,19 +470,14 @@ function DetailedReport({ result }: { result: AuditResult }) {
 
   return (
     <section id="detailed-report" className="mx-auto max-w-5xl scroll-mt-8 px-6 pb-28">
-      {/* رأس التقرير */}
       <div className="animate-fade-up rounded-[28px] border border-ink/10 bg-white/70 p-7 shadow-card backdrop-blur-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-light px-3 py-1 text-xs font-bold text-emerald-dark">
               <Check /> اكتمل الفحص
             </span>
-            <h2 className="mt-3 font-display text-3xl font-black tracking-tight text-ink">
-              تقرير الفحص التفصيلي
-            </h2>
-            <p className="mt-1 text-sm text-ink-muted" dir="ltr">
-              {safeHost(result.url) || result.scrapedTitle}
-            </p>
+            <h2 className="mt-3 font-display text-3xl font-black tracking-tight text-ink">تقرير الفحص التفصيلي</h2>
+            <p className="mt-1 text-sm text-ink-muted" dir="ltr">{safeHost(result.url) || result.scrapedTitle}</p>
           </div>
 
           <div className="flex items-center gap-4 rounded-2xl bg-ink px-5 py-4 text-cream">
@@ -512,22 +491,13 @@ function DetailedReport({ result }: { result: AuditResult }) {
         </div>
       </div>
 
-      {/* التبويبات */}
       <div className="mt-6 flex flex-wrap gap-2.5">
         {TABS.map((t) => {
           const count = (result[t.key] as Issue[]).length;
           const isActive = active === t.key;
           const Icon = t.icon;
           return (
-            <button
-              key={t.key}
-              onClick={() => setActive(t.key)}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
-                isActive
-                  ? "border-ink bg-ink text-cream shadow-soft"
-                  : "border-ink/12 bg-white/70 text-ink-soft backdrop-blur hover:border-ink/30"
-              }`}
-            >
+            <button key={t.key} onClick={() => setActive(t.key)} className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${isActive ? "border-ink bg-ink text-cream shadow-soft" : "border-ink/12 bg-white/70 text-ink-soft backdrop-blur hover:border-ink/30"}`}>
               <Icon active={isActive} />
               {t.label}
               <span className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${isActive ? "bg-cream/20 text-cream" : "bg-sand text-ink-soft"}`}>
@@ -538,7 +508,6 @@ function DetailedReport({ result }: { result: AuditResult }) {
         })}
       </div>
 
-      {/* لوحة المشكلات */}
       <div key={active} className="mt-5 animate-fade-up space-y-3">
         {issues.length === 0 ? (
           <div className="flex items-center gap-3 rounded-2xl border border-emerald/20 bg-emerald-light/60 p-5 text-emerald-dark">
@@ -558,13 +527,12 @@ function DetailedReport({ result }: { result: AuditResult }) {
         )}
       </div>
 
-      {/* القسم الذهبي */}
       <GoldenRecommendations changes={result.recommended_changes} />
     </section>
   );
 }
 
-/* ============ القسم الذهبي مع النسخ السريع ============ */
+/* ============ القسم الذهبي ============ */
 function GoldenRecommendations({ changes }: { changes: Change[] }) {
   const allText = changes.map((c, i) => `${i + 1}. ${c.change}`).join("\n");
 
@@ -603,38 +571,445 @@ function GoldenRecommendations({ changes }: { changes: Change[] }) {
 
 function CopyButton({ text, label, big = false }: { text: string; label: string; big?: boolean }) {
   const [copied, setCopied] = useState(false);
-
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
-    } catch {
-      /* المتصفح منع الوصول للحافظة */
-    }
+    } catch {}
   }
-
   return (
-    <button
-      onClick={copy}
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full font-display font-bold transition ${
-        big ? "px-4 py-2 text-sm" : "px-3 py-1.5 text-xs"
-      } ${copied ? "bg-emerald text-white" : "border border-ink/15 bg-white/70 text-ink hover:border-ink/30"}`}
-    >
-      {copied ? (
-        <>
-          <Check light /> تم النسخ
-        </>
-      ) : (
-        <>
-          <CopyIcon small /> {label}
-        </>
-      )}
+    <button onClick={copy} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full font-display font-bold transition ${big ? "px-4 py-2 text-sm" : "px-3 py-1.5 text-xs"} ${copied ? "bg-emerald text-white" : "border border-ink/15 bg-white/70 text-ink hover:border-ink/30"}`}>
+      {copied ? (<><Check light /> تم النسخ</>) : (<><CopyIcon small /> {label}</>)}
     </button>
   );
 }
 
-/* ============ شارات وأيقونات الـ severity ============ */
+/* ============================================================
+   1) شريط البراندات المتحرك
+   ============================================================ */
+const BRANDS = ["Taager", "Ninja Sellers", "Salla", "Zid", "Shopify", "YouCan"];
+
+function BrandsTicker() {
+  return (
+    <section className="border-y border-ink/5 bg-white/40 py-10 backdrop-blur-sm">
+      <p className="mb-7 text-center text-sm font-medium tracking-wide text-ink-muted">
+        نفحص ونُحسّن صفحات على أبرز منصات التجارة في الشرق الأوسط
+      </p>
+      <div className="marquee-mask relative overflow-hidden">
+        <div className="flex w-max animate-marquee items-center gap-16 pr-16">
+          {[...BRANDS, ...BRANDS].map((b, i) => (
+            <span
+              key={i}
+              className="group cursor-default whitespace-nowrap font-display text-2xl font-extrabold text-ink/25 transition-all duration-300 hover:text-emerald hover:[text-shadow:0_0_24px_rgba(15,157,107,0.45)] sm:text-3xl"
+            >
+              {b}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   2) كيف يعمل — ٣ خطوات سينمائية
+   ============================================================ */
+const STEPS = [
+  {
+    n: "1",
+    title: "ألصق الرابط",
+    desc: "ضع رابط صفحة الهبوط أو المتجر الخاص بك في الأعلى واضغط زر الفحص. لا حاجة لأي تثبيت أو تسجيل.",
+    icon: LinkIcon,
+  },
+  {
+    n: "2",
+    title: "فحص نفسي بالذكاء الاصطناعي",
+    desc: "يحلّل الذكاء الاصطناعي صفحتك من منظور المشتري الخليجي والمصري: النصوص، الثقة، ونقاط التردد التي تُفقدك البيع.",
+    icon: BrainIcon,
+  },
+  {
+    n: "3",
+    title: "ضاعِف مبيعاتك",
+    desc: "احصل على توصيات فورية قابلة للتطبيق ترفع تحويلاتك وتوقف نزيف ميزانيتك الإعلانية — جاهزة للنسخ والتنفيذ.",
+    icon: RocketIcon,
+  },
+];
+
+function HowItWorks() {
+  return (
+    <section id="how" className="mx-auto max-w-7xl px-6 py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-emerald/25 bg-emerald-light px-4 py-1.5 text-sm font-semibold text-emerald-dark">
+          ثلاث خطوات
+        </span>
+        <h2 className="mt-5 font-display text-4xl font-black tracking-tight text-ink sm:text-5xl">
+          من رابط عادي إلى صفحة تبيع
+        </h2>
+        <p className="mt-4 text-lg text-ink-soft">
+          عملية بسيطة من ثلاث خطوات تكشف لك ما يراه عملاؤك ولا تراه أنت.
+        </p>
+      </div>
+
+      <div className="mt-16 grid gap-6 md:grid-cols-3">
+        {STEPS.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <div
+              key={s.n}
+              className="group relative overflow-hidden rounded-[28px] border border-ink/10 bg-white/60 p-8 shadow-soft backdrop-blur-sm transition-all duration-500 hover:-translate-y-1.5 hover:border-emerald/30 hover:shadow-card"
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
+              <span className="pointer-events-none absolute -bottom-8 -left-2 select-none font-display text-[10rem] font-black leading-none text-ink/5 transition-all duration-500 group-hover:text-emerald/10">
+                {s.n}
+              </span>
+              <div className="relative">
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-ink text-emerald-ring shadow-soft transition-transform duration-500 group-hover:scale-110">
+                  <Icon />
+                </span>
+                <h3 className="mt-6 font-display text-2xl font-extrabold text-ink">{s.title}</h3>
+                <p className="mt-3 leading-relaxed text-ink-soft">{s.desc}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   3) ماذا نفحص — ٣ بطاقات أساسية
+   ============================================================ */
+const FEATURES = [
+  {
+    title: "نصوص البيع وجذب الانتباه",
+    en: "Copywriting & Hook Power",
+    desc: "نقيّم قوة العنوان الرئيسي، وضوح عرض القيمة خلال أول ثانيتين، وصياغة أزرار الحث على الإجراء ومدى تحفيزها للشراء.",
+    icon: PenIcon,
+    points: ["قوة العنوان والخطّاف", "وضوح عرض القيمة", "صياغة أزرار CTA"],
+    accent: "emerald",
+  },
+  {
+    title: "تجربة المستخدم ونقاط التشتيت",
+    en: "UI/UX & Frictional Points",
+    desc: "نكشف العناصر التي تشتّت الزائر أو تعيق رحلته نحو الشراء، من ترتيب الصفحة إلى ظهور الزر على الجوال.",
+    icon: CursorIcon,
+    points: ["ظهور CTA فوق الطية", "مسار الشراء وسلاسته", "التشتيت البصري"],
+    accent: "ink",
+  },
+  {
+    title: "عناصر الثقة وعقلية المشتري الخليجي والمصري",
+    en: "Trust & Gulf Credibility",
+    desc: "نحلّل عناصر الثقة الحاسمة في السوق العربي: آراء العملاء، وسائل التواصل، الضمانات، وطرق الدفع المحلية.",
+    icon: ShieldCheckIcon,
+    points: ["التقييمات والمصداقية", "وسائل تواصل واضحة", "ضمان وطرق دفع محلية"],
+    accent: "amber",
+  },
+];
+
+function CoreFeatures() {
+  return (
+    <section id="features" className="relative bg-sand/40 py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
+            ماذا نفحص
+          </span>
+          <h2 className="mt-5 font-display text-4xl font-black tracking-tight text-ink sm:text-5xl">
+            ثلاثة محاور تصنع الفرق بين صفحة تتفرّج وصفحة تبيع
+          </h2>
+        </div>
+
+        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+          {FEATURES.map((f) => {
+            const Icon = f.icon;
+            const ring =
+              f.accent === "emerald"
+                ? "hover:border-emerald/40"
+                : f.accent === "amber"
+                ? "hover:border-amber-accent/50"
+                : "hover:border-ink/40";
+            const iconBg =
+              f.accent === "emerald"
+                ? "bg-emerald-light text-emerald-dark"
+                : f.accent === "amber"
+                ? "bg-[#FCF2E0] text-amber-accent"
+                : "bg-ink/5 text-ink";
+            return (
+              <div key={f.en} className={`group flex flex-col rounded-[28px] border border-ink/10 bg-white/80 p-8 shadow-soft backdrop-blur-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-card ${ring}`}>
+                <span className={`grid h-14 w-14 place-items-center rounded-2xl ${iconBg} transition-transform duration-500 group-hover:scale-110`}>
+                  <Icon />
+                </span>
+                <p className="mt-6 text-xs font-bold uppercase tracking-widest text-ink-muted" dir="ltr">{f.en}</p>
+                <h3 className="mt-1.5 font-display text-xl font-extrabold leading-snug text-ink">{f.title}</h3>
+                <p className="mt-3 flex-1 leading-relaxed text-ink-soft">{f.desc}</p>
+                <ul className="mt-6 space-y-2.5 border-t border-ink/5 pt-6">
+                  {f.points.map((p) => (
+                    <li key={p} className="flex items-center gap-2.5 text-sm font-medium text-ink-soft">
+                      <Check /> {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   4) الأسعار
+   ============================================================ */
+const PLANS = [
+  {
+    name: "التجربة المجانية",
+    sub: "ديمو محدود",
+    price: "0",
+    unit: "مجانًا",
+    cta: "ابدأ الفحص المجاني",
+    popular: false,
+    features: [
+      "فحص واحد يوميًا",
+      "النتيجة الإجمالية فقط",
+      "أبرز ٣ توصيات",
+      "بدون تسجيل",
+    ],
+    missing: ["تقرير تفصيلي كامل", "تحليل المنافسين", "دعم أولوية"],
+  },
+  {
+    name: "الباقة الاحترافية للحيتان",
+    sub: "Professional Whale Tier",
+    price: "499",
+    unit: "ريال / شهريًا",
+    cta: "اشترك الآن",
+    popular: true,
+    features: [
+      "فحوصات غير محدودة",
+      "تقرير تفصيلي كامل بالتوصيات",
+      "تحليل نفسي للمشتري الخليجي والمصري",
+      "مقارنة بصفحات المنافسين",
+      "تصدير التقرير PDF",
+      "دعم أولوية عبر واتساب",
+    ],
+    missing: [],
+  },
+];
+
+function PricingTable({ onFreeTier }: { onFreeTier: () => void }) {
+  function handlePayment(plan: string) {
+    // 🔌 نقطة ربط الدفع لاحقًا (Tap / Paymob / Stripe ...)
+    alert(`سيتم توجيهك لإتمام الاشتراك في: ${plan}\n(نقطة ربط بوابة الدفع — قيد الإعداد)`);
+  }
+
+  return (
+    <section id="pricing" className="mx-auto max-w-7xl px-6 py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-amber-accent/40 bg-[#FCF2E0] px-4 py-1.5 text-sm font-semibold text-amber-accent">
+          الأسعار
+        </span>
+        <h2 className="mt-5 font-display text-4xl font-black tracking-tight text-ink sm:text-5xl">
+          استثمار صغير مقابل ميزانية إعلانية لا تُهدر
+        </h2>
+        <p className="mt-4 text-lg text-ink-soft">
+          ابدأ مجانًا، ثم انتقل للباقة الاحترافية حين تكون جاهزًا لمضاعفة تحويلاتك.
+        </p>
+      </div>
+
+      <div className="mx-auto mt-16 grid max-w-4xl items-start gap-6 md:grid-cols-2">
+        {PLANS.map((plan) => (
+          <div
+            key={plan.name}
+            className={`relative flex flex-col rounded-[28px] p-8 transition-all duration-500 ${
+              plan.popular
+                ? "border-2 border-transparent bg-ink text-cream shadow-card [background:linear-gradient(#0E1116,#0E1116)_padding-box,linear-gradient(135deg,#34D399,#E8A33D)_border-box] md:-translate-y-3 md:hover:-translate-y-4"
+                : "border border-ink/10 bg-white/80 text-ink shadow-soft backdrop-blur-sm hover:-translate-y-1"
+            }`}
+          >
+            {plan.popular && (
+              <span className="absolute -top-3.5 right-8 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-emerald to-amber-accent px-4 py-1.5 font-display text-xs font-bold text-white shadow-glow">
+                <StarIcon /> الأكثر اختيارًا
+              </span>
+            )}
+
+            <div className="flex items-baseline justify-between">
+              <div>
+                <h3 className={`font-display text-xl font-extrabold ${plan.popular ? "text-cream" : "text-ink"}`}>{plan.name}</h3>
+                <p className={`mt-1 text-xs ${plan.popular ? "text-cream/60" : "text-ink-muted"}`} dir="ltr">{plan.sub}</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-end gap-2">
+              <span className="font-display text-5xl font-black tabular-nums">{plan.price}</span>
+              <span className={`mb-1.5 text-sm ${plan.popular ? "text-cream/70" : "text-ink-muted"}`}>{plan.unit}</span>
+            </div>
+
+            <button
+              onClick={() => (plan.popular ? handlePayment(plan.name) : onFreeTier())}
+              className={`mt-7 w-full rounded-full py-3.5 font-display text-base font-bold transition ${
+                plan.popular
+                  ? "bg-gradient-to-l from-emerald to-emerald-dark text-white shadow-[0_10px_24px_-8px_rgba(15,157,107,0.7)] hover:shadow-[0_14px_30px_-8px_rgba(15,157,107,0.9)]"
+                  : "border border-ink/15 bg-cream text-ink hover:border-ink/30"
+              }`}
+            >
+              {plan.cta}
+            </button>
+
+            <ul className="mt-8 space-y-3.5">
+              {plan.features.map((f) => (
+                <li key={f} className="flex items-start gap-3 text-sm">
+                  <span className={`mt-0.5 shrink-0 ${plan.popular ? "text-emerald-ring" : "text-emerald"}`}>
+                    <Check light={plan.popular} />
+                  </span>
+                  <span className={plan.popular ? "text-cream/90" : "text-ink-soft"}>{f}</span>
+                </li>
+              ))}
+              {plan.missing.map((m) => (
+                <li key={m} className="flex items-start gap-3 text-sm opacity-50">
+                  <span className="mt-0.5 shrink-0 text-ink-muted"><XIcon /></span>
+                  <span className="text-ink-muted line-through">{m}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   5) الأسئلة الشائعة (Accordion)
+   ============================================================ */
+const FAQS = [
+  {
+    q: "هل الفحص حقيقي أم مجرد نتائج عشوائية؟",
+    a: "الفحص حقيقي بالكامل. يقرأ الذكاء الاصطناعي محتوى صفحتك فعليًا — العنوان، النصوص، أزرار الشراء، وعناصر الثقة — ويقيّمها وفق مبادئ تحسين معدلات التحويل (CRO) المثبتة، ثم يعطيك توصيات مخصّصة لصفحتك تحديدًا وليست نصائح عامة.",
+  },
+  {
+    q: "كيف يساعدني الذكاء الاصطناعي في توفير ميزانية الإعلانات؟",
+    a: "أغلب المعلنين يضخّون ميزانية على إعلانات تجلب زيارات، لكن الصفحة نفسها لا تحوّل هذه الزيارات إلى مبيعات. بإصلاح نقاط الضعف التي نكشفها، ترتفع نسبة التحويل من نفس عدد الزيارات — أي مبيعات أكثر بنفس الإنفاق الإعلاني، وأحيانًا بإنفاق أقل.",
+  },
+  {
+    q: "هل الأداة مناسبة للسوق الخليجي والمصري تحديدًا؟",
+    a: "نعم، هذا جوهر تميّزنا. التحليل مبني على عقلية المشتري العربي: أهمية التواصل المباشر عبر واتساب، الثقة في طرق الدفع المحلية والدفع عند الاستلام، ودور التقييمات والمصداقية في قرار الشراء لدى عملاء الخليج ومصر.",
+  },
+  {
+    q: "هل أحتاج خبرة تقنية لتطبيق التوصيات؟",
+    a: "إطلاقًا. التوصيات مكتوبة بلغة واضحة وعملية، وكل توصية قابلة للنسخ بضغطة زر. سواء كنت تستخدم سلة أو زد أو شوبيفاي أو صفحة خاصة، يمكنك تطبيق التغييرات بنفسك أو تسليمها لفريقك مباشرة.",
+  },
+  {
+    q: "ما الفرق بين النسخة المجانية والباقة الاحترافية؟",
+    a: "النسخة المجانية تعطيك النتيجة الإجمالية وأبرز التوصيات لتجربة الأداة. الباقة الاحترافية تفتح التقرير التفصيلي الكامل، تحليل المنافسين، تصدير PDF، وفحوصات غير محدودة — وهي الأنسب لمن يدير حملات إعلانية بشكل جادّ.",
+  },
+];
+
+function FAQSection() {
+  const [open, setOpen] = useState<number | null>(0);
+
+  return (
+    <section id="faq" className="relative bg-sand/40 py-24">
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/70 px-4 py-1.5 text-sm font-semibold text-ink-soft">
+            الأسئلة الشائعة
+          </span>
+          <h2 className="mt-5 font-display text-4xl font-black tracking-tight text-ink sm:text-5xl">
+            كل ما تريد معرفته قبل أن تبدأ
+          </h2>
+        </div>
+
+        <div className="mt-12 space-y-3">
+          {FAQS.map((item, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={i} className={`overflow-hidden rounded-2xl border bg-white/80 shadow-soft backdrop-blur-sm transition-colors ${isOpen ? "border-emerald/30" : "border-ink/10"}`}>
+                <button
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-right"
+                  aria-expanded={isOpen}
+                >
+                  <span className="font-display text-lg font-bold text-ink">{item.q}</span>
+                  <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border transition-all duration-300 ${isOpen ? "rotate-180 border-emerald bg-emerald text-white" : "border-ink/15 text-ink-soft"}`}>
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </span>
+                </button>
+                <div className="grid transition-all duration-300 ease-out" style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}>
+                  <div className="overflow-hidden">
+                    <p className="px-6 pb-6 leading-relaxed text-ink-soft">{item.a}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   6) التذييل
+   ============================================================ */
+function Footer() {
+  const cols = [
+    { title: "المنتج", links: ["كيف يعمل", "ماذا نفحص", "الأسعار", "الأسئلة الشائعة"] },
+    { title: "الشركة", links: ["من نحن", "المدوّنة", "تواصل معنا", "الوظائف"] },
+    { title: "قانوني", links: ["سياسة الخصوصية", "شروط الاستخدام", "سياسة الاسترجاع"] },
+  ];
+
+  return (
+    <footer className="relative overflow-hidden bg-ink text-cream">
+      <div className="pointer-events-none absolute inset-0 opacity-[0.12]" style={{ backgroundImage: "radial-gradient(40rem 30rem at 80% -10%, #0F9D6B, transparent 60%), radial-gradient(36rem 28rem at -5% 10%, #E8A33D, transparent 55%)" }} />
+      <div className="relative mx-auto max-w-7xl px-6 py-16">
+        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-10 w-10 place-items-center rounded-2xl bg-cream text-ink">
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+              </span>
+              <span className="font-display text-lg font-extrabold tracking-tight">
+                Auditor<span className="text-emerald-ring">.ai</span>
+              </span>
+            </div>
+            <p className="mt-5 max-w-xs leading-relaxed text-cream/60">
+              أداة ذكاء اصطناعي لفحص صفحات الهبوط ومضاعفة التحويلات، مصمّمة خصيصًا لعقلية المشتري في الخليج ومصر.
+            </p>
+          </div>
+
+          {cols.map((col) => (
+            <div key={col.title}>
+              <h4 className="font-display text-sm font-bold tracking-wide text-cream/90">{col.title}</h4>
+              <ul className="mt-4 space-y-3">
+                {col.links.map((l) => (
+                  <li key={l}>
+                    <a href="#" className="text-sm text-cream/55 transition hover:text-emerald-ring">{l}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-cream/10 pt-8 sm:flex-row">
+          <p className="text-sm text-cream/50">© {new Date().getFullYear()} Auditor.ai — جميع الحقوق محفوظة.</p>
+          <p className="text-sm text-cream/50">صُنع بشغف للسوق العربي 🚀</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ============================================================
+   شارات وأيقونات الـ severity
+   ============================================================ */
 const LEVELS = {
   high: { color: "#ED6A5E", bg: "#FCEBE9", severity: "حرجة", priority: "عاجل" },
   medium: { color: "#E8A33D", bg: "#FCF2E0", severity: "متوسطة", priority: "مهم" },
@@ -669,11 +1044,20 @@ function SeverityIcon({ level }: { level: Severity }) {
   );
 }
 
-/* ============ أيقونات ============ */
+/* ============================================================
+   أيقونات (Inline SVG)
+   ============================================================ */
 function Check({ light = false }: { light?: boolean }) {
   return (
-    <svg className={`h-4 w-4 ${light ? "text-white" : "text-emerald"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+    <svg className={`h-4 w-4 ${light ? "text-current" : "text-emerald"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+function XIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
     </svg>
   );
 }
@@ -705,8 +1089,64 @@ function BoltIcon() {
     </svg>
   );
 }
+function LinkIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
+      <path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
+    </svg>
+  );
+}
+function BrainIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5a3 3 0 0 0-3 3 3 3 0 0 0-3 3 3 3 0 0 0 0 6 3 3 0 0 0 6 0Z" />
+      <path d="M12 5a3 3 0 0 1 3 3 3 3 0 0 1 3 3 3 3 0 0 1 0 6 3 3 0 0 1-6 0Z" />
+    </svg>
+  );
+}
+function RocketIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z" />
+      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+    </svg>
+  );
+}
+function PenIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="m2 2 7.586 7.586" /><circle cx="11" cy="11" r="2" />
+    </svg>
+  );
+}
+function CursorIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" /><path d="m13 13 6 6" />
+    </svg>
+  );
+}
+function ShieldCheckIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+function StarIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" />
+    </svg>
+  );
+}
 
-/* ============ مساعدات منطقية ============ */
+/* ============================================================
+   مساعدات منطقية
+   ============================================================ */
 function clamp(n: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, Math.round(n || 0)));
 }
@@ -740,8 +1180,6 @@ function safeHost(url?: string) {
 function toArabic(n: number) {
   return String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
 }
-
-/* عدّاد رقمي يتصاعد حتى القيمة المستهدفة */
 function useCountUp(target: number, duration = 1200) {
   const [val, setVal] = useState(0);
   useEffect(() => {
